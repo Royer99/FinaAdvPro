@@ -64,6 +64,7 @@ int runCommand(char * command){
         contador++;
         tokenizeCommand = strtok(NULL, " ");
     }
+    printf("contador %i\n",contador);
     //remove the last "\n" to avoid problems at the execvp
     args[contador-1]=strtok(args[contador-1],"\n");
     /*
@@ -73,13 +74,12 @@ int runCommand(char * command){
     printf("este es el comando a ejecutar:%s",args[contador]);
     */
     //Ejecucion de comandos 
+    printf("%s\n\n",args[0]);
+    printf("%s\n\n",args[1]);
     if (execvp(args[0], args) == -1) {
-        printf("padre id: %i, error\n",getpid());
+        printf("id: %i, error\n",getpid());
         printf("Not a unix command, please type a valid command\n");
         return -1;
-    }else{
-        printf("padre id: %i, fin\n",getpid());
-        // 
     }
     
 }
@@ -89,18 +89,19 @@ void childsManager(char *command){
     int pid=0;
     int counter=0;
     cleanSpaces(command);
-    printf("despues de la limpia %s\n",command);
+    //printf("despues de la limpia %s\n",command);
     tokenizeCommand = strtok(command,";");
     while(tokenizeCommand!= NULL){
         if((pid = fork()) == 0){
-            printf("id: %i, el commando es %s\n",getpid(),tokenizeCommand);
+            printf("hijo id: %i, el commando es %s\n",getpid(),tokenizeCommand);
             runCommand(tokenizeCommand);
             /*
             printf("id: %i, el commando termino con exito %s\n",getpid(),tokenizeCommand);
-            exit(0);
+            
             */
+            exit(0);
         }else{
-            printf("padre id: %i, el commando es %s\n",getpid(),tokenizeCommand);
+            printf("padre id: %i\n",getpid());
             counter++;
             tokenizeCommand = strtok(NULL, ";");
         }
@@ -130,14 +131,16 @@ void batchProcessing(int file){
     //tokenize with '\n' deliminter
     commands=strtok(buffer,"\n");
     int contador = 0;
-    printf("antes del tokenizado\n");
+    //printf("antes del tokenizado\n");
     while(commands != NULL){
         args[contador] = commands;
         //args[contador]=strtok(args[contador],"\n");
-        printf("%s,",args[contador]);
+        //printf("%s,",args[contador]);
         //
         //childsManager(args[contador]);
         contador++;
         commands = strtok(NULL, "\n");
     }
+    childsManager(args[2]);
+    free(buffer);
 }
